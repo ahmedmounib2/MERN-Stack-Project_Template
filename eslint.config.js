@@ -3,45 +3,88 @@ import eslintPluginJsxA11y from 'eslint-plugin-jsx-a11y';
 import eslintPluginReactHooks from 'eslint-plugin-react-hooks';
 import tseslint from '@typescript-eslint/eslint-plugin';
 import tsParser from '@typescript-eslint/parser';
+import js from '@eslint/js';
+import globals from 'globals';
+import eslintPluginReactRefresh from 'eslint-plugin-react-refresh';
 
 /** @type {import("eslint").Linter.Config} */
 export default [
+  // TypeScript Files Configuration
   {
     files: ['**/*.ts', '**/*.tsx'],
     languageOptions: {
       parser: tsParser,
       parserOptions: {
         project: './tsconfig.json',
-        extraFileExtensions: ['.json', '.css'], // 👈 add this line
+        extraFileExtensions: ['.json', '.css'],
       },
     },
     plugins: {
       '@typescript-eslint': tseslint,
-      react: eslintPluginReact,
+      'react': eslintPluginReact,
       'jsx-a11y': eslintPluginJsxA11y,
       'react-hooks': eslintPluginReactHooks,
     },
     rules: {
-      // Core ESLint rules
-      'no-unused-vars': 'warn', // warn if you declare variables but don't use them
-      'no-console': 'warn', // warn if you leave console.logs
-      eqeqeq: ['error', 'always'], // force === instead of ==
-
-      // TypeScript specific
-      '@typescript-eslint/no-unused-vars': ['warn', { argsIgnorePattern: '^_' }], // unused function args are okay if named like _something
-      '@typescript-eslint/explicit-function-return-type': 'off', // don't force function return types (optional early)
-      '@typescript-eslint/no-explicit-any': 'warn', // warn if you use 'any' type (useful in early days)
-
-      // React specific
-      'react/react-in-jsx-scope': 'off', // React 17+ doesn't need import React
-      'react/prop-types': 'off', // because you're using TypeScript types instead
-      'react/jsx-uses-react': 'off', // React 17+ JSX runtime
-      'react-hooks/rules-of-hooks': 'error', // strong rules for React Hooks
-      'react-hooks/exhaustive-deps': 'warn', // warn if missing deps in useEffect
-
-      // Accessibility (a11y)
-      'jsx-a11y/alt-text': 'warn', // warn if missing alt text in images
-      'jsx-a11y/anchor-is-valid': 'warn', // warn if <a> tags have no href
+      ...js.configs.recommended.rules,
+      'no-unused-vars': 'warn',
+      '@typescript-eslint/no-unused-vars': ['warn', { argsIgnorePattern: '^_' }],
+      '@typescript-eslint/explicit-function-return-type': 'off',
+      '@typescript-eslint/no-explicit-any': 'warn',
+      'react/react-in-jsx-scope': 'off',
+      'react/prop-types': 'off',
+      'react/jsx-uses-react': 'off',
+      'react-hooks/rules-of-hooks': 'error',
+      'react-hooks/exhaustive-deps': 'warn',
+      'jsx-a11y/alt-text': 'warn',
+      'jsx-a11y/anchor-is-valid': 'warn',
+    },
+  },
+  // JavaScript Files Configuration (JSX)
+  {
+    files: ['**/*.{js,jsx}'],
+    languageOptions: {
+      ecmaVersion: 'latest',
+      globals: globals.browser,
+      parserOptions: {
+        ecmaVersion: 'latest',
+        ecmaFeatures: { jsx: true },
+        sourceType: 'module',
+      },
+    },
+    plugins: {
+      'react-hooks': eslintPluginReactHooks,
+      'react-refresh': eslintPluginReactRefresh,
+    },
+    rules: {
+      ...js.configs.recommended.rules,
+      'no-unused-vars': ['warn', { varsIgnorePattern: '^[A-Z_]' }],
+      'react-refresh/only-export-components': ['warn', { allowConstantExport: true }],
+    },
+  },
+  // Node.js Backend Files Configuration
+  {
+    files: ['backend/**/*.js'],
+    languageOptions: {
+      ecmaVersion: 'latest',
+      globals: {
+        ...globals.node, // Node.js globals
+        process: 'readonly',
+      },
+      parserOptions: {
+        sourceType: 'module',
+      },
+    },
+    rules: {
+      'no-unused-vars': [
+        'warn',
+        {
+          argsIgnorePattern: '^_',
+          varsIgnorePattern: '^_',
+          caughtErrorsIgnorePattern: '^_',
+        },
+      ],
+      'no-console': 'warn',
     },
   },
 ];
