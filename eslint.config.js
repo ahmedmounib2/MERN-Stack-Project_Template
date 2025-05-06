@@ -6,6 +6,8 @@ import tsParser from '@typescript-eslint/parser';
 import js from '@eslint/js';
 import globals from 'globals';
 import eslintPluginReactRefresh from 'eslint-plugin-react-refresh';
+import prettier from 'eslint-config-prettier';
+import securityPlugin from 'eslint-plugin-security';
 
 /** @type {import("eslint").Linter.Config} */
 export default [
@@ -62,6 +64,14 @@ export default [
       'react-refresh/only-export-components': ['warn', { allowConstantExport: true }],
     },
   },
+  {
+    files: ['**/*.md'],
+    languageOptions: { parser: null },
+    rules: {
+      'no-trailing-spaces': 'warn',
+    },
+  },
+
   // Node.js Backend Files Configuration
   {
     files: ['backend/**/*.js'],
@@ -75,6 +85,9 @@ export default [
         sourceType: 'module',
       },
     },
+    plugins: {
+      security: securityPlugin,
+    },
     rules: {
       'no-unused-vars': [
         'warn',
@@ -85,6 +98,12 @@ export default [
         },
       ],
       'no-console': 'warn',
+      'security/detect-object-injection': 'warn',
     },
+  },
+
+  {
+    ignores: ['dist', 'node_modules'],
+    ...prettier, // disables conflicting rules
   },
 ];
